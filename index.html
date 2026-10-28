@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <title>AUDITORIA DOS CORREIOS</title>
+
+  <!-- Biblioteca SheetJS para gerar Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Tahoma, Verdana, Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0 0 30px;
+      min-height: 100vh;
+      color: #000;
+      background:
+        radial-gradient(ellipse 120% 40% at 30% 100%, #4f9a2c 0%, #3d8a1f 55%, transparent 56%),
+        radial-gradient(ellipse 100% 35% at 90% 105%, #62b13a 0%, #4a9a26 55%, transparent 56%),
+        linear-gradient(#2f6fd6 0%, #6aa8f0 55%, #bfe0ff 100%);
+      background-attachment: fixed;
+    }
+
+    /* Barra de título azul estilo XP */
+    .header-banner {
+      background: linear-gradient(#3a8cff 0%, #0a5be0 12%, #0950d4 50%, #0a4bc8 88%, #0b3fa8 100%);
+      color: white;
+      padding: 14px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 1px #0a2a80;
+      margin-bottom: 24px;
+      border-bottom: 3px solid #0a3fc4;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    #top-info {
+      display: block;
+      width: fit-content;
+      max-width: 94%;
+      margin: 0 auto 20px;
+      padding: 8px 16px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #0a2a80;
+      background: linear-gradient(90deg, #fff 0%, #dce8ff 100%);
+      border: 1px solid #7f9db9;
+      border-radius: 4px;
+      box-shadow: 2px 3px 8px rgba(0,0,0,.3);
+    }
+
+    .form-container {
+      display: inline-block;
+      text-align: left;
+      margin-bottom: 24px;
+      max-width: 400px;
+      width: 100%;
+      padding: 16px 16px 12px;
+      background: #ece9d8;
+      border: 3px solid #0a3fc4;
+      border-radius: 9px 9px 4px 4px;
+      box-shadow: 4px 6px 18px rgba(0,0,0,.5);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: #0046d5;
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      height: 36px;
+      font-size: 16px;
+      font-family: Tahoma, Verdana, Arial, sans-serif;
+      border: 1px solid #7f9db9;
+      display: block;
+      margin: 0 auto;
+      padding: 0 8px;
+      border-radius: 2px;
+      background-color: white;
+    }
+
+    select:focus,
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #316ac5;
+      box-shadow: 0 0 0 2px #b9d1f7;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-family: Tahoma, Verdana, Arial, sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      color: #000;
+      border: 1px solid #003c74;
+      background: linear-gradient(#fff 0%, #ece9d8 85%, #d6d0c0 100%);
+      border-radius: 6px;
+    }
+
+    button:hover {
+      border-color: #e8a317;
+      box-shadow: inset 0 0 0 2px #fbd36b;
+    }
+
+    button:active {
+      background: #d6d0c0;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      box-shadow: none;
+    }
+
+    /* Botão enviar */
+    #btn-enviar {
+      display: block;
+      width: 100%;
+      margin: 0 auto 10px auto;
+      font-size: 15px;
+      color: #fff;
+      text-shadow: 1px 1px 1px #145a0a;
+      border: 1px solid #1a6b0e;
+      border-radius: 12px;
+      background: linear-gradient(#6fd45a 0%, #3ea82b 50%, #2d8f1c 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    }
+
+    #btn-enviar:hover {
+      filter: brightness(1.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    }
+
+    /* Botões principais */
+    #botoes-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+      padding: 0 10px;
+    }
+
+    #botoes-container button {
+      flex: 1;
+      min-width: 130px;
+      max-width: 190px;
+      color: #fff;
+      text-shadow: 1px 1px 1px #0a2a80;
+      border: 1px solid #0a3fc4;
+      border-radius: 12px;
+      background: linear-gradient(#6aa3ff 0%, #2a6ee8 50%, #1352c8 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+    }
+
+    #botoes-container button:hover {
+      filter: brightness(1.1);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+    }
+
+    /* Tabela */
+    table {
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 900px;
+      margin: 0 auto 30px auto;
+      font-size: 15px;
+      background-color: white;
+    }
+
+    th,
+    td {
+      border: 1px solid #aca899;
+      padding: 8px;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    th {
+      background: linear-gradient(#fff, #ece9d8);
+      color: #0a2a80;
+    }
+
+    /* Modal da tabela */
+    #modal-tabela {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #ece9d8;
+      z-index: 1000;
+      flex-direction: column;
+      padding-top: 80px;
+      align-items: center;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    #modal-tabela::before {
+      content: "📋 Consulta - Peças bipadas";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 34px;
+      padding: 8px 12px;
+      text-align: left;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      text-shadow: 1px 1px 1px #0a2a80;
+      background: linear-gradient(#3a8cff 0%, #0a5be0 12%, #0950d4 50%, #0a4bc8 88%, #0b3fa8 100%);
+      z-index: 1050;
+    }
+
+    #modal-tabela #tabela {
+      flex: 0 0 auto;
+      margin-bottom: 30px;
+    }
+
+    #modal-botoes-topo {
+      position: fixed;
+      top: 42px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      z-index: 1100;
+    }
+
+    #modal-botoes-topo button {
+      padding: 8px 25px;
+      font-size: 15px;
+      color: #fff;
+      text-shadow: 1px 1px 1px #0a2a80;
+      border: 1px solid #0a3fc4;
+      border-radius: 12px;
+      background: linear-gradient(#6aa3ff 0%, #2a6ee8 50%, #1352c8 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Mensagens */
+    #mensagem-erro,
+    #mensagem-limite {
+      color: #c0392b;
+      font-weight: bold;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* Rodapé */
+    #rodape {
+      display: block;
+      width: fit-content;
+      margin: 10px auto 0;
+      padding: 8px 18px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #0a2a80;
+      background: #fffbe0;
+      border: 1px solid #7f9db9;
+      border-radius: 4px;
+      box-shadow: 2px 3px 8px rgba(0,0,0,.3);
+    }
+
+    /* Janelas de confirmação e avisos */
+    #confirmacao-exportar,
+    #confirmacao-limpar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,40,0.5);
+      z-index: 1200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #confirmacao-exportar > div,
+    #confirmacao-limpar > div {
+      position: relative;
+      background: #ece9d8;
+      padding: 48px 20px 20px;
+      border: 3px solid #0a3fc4;
+      border-radius: 9px 9px 4px 4px;
+      box-shadow: 4px 6px 18px rgba(0,0,0,.6);
+      text-align: center;
+      max-width: 340px;
+      width: calc(100% - 40px);
+    }
+
+    #confirmacao-exportar > div::before,
+    #confirmacao-limpar > div::before,
+    #modal-codigo-incorreto > div::before,
+    #modal-codigo-duplicado > div::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      padding: 7px 10px;
+      text-align: left;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      text-shadow: 1px 1px 1px #0a2a80;
+      background: linear-gradient(#3a8cff 0%, #0a5be0 12%, #0950d4 50%, #0a4bc8 88%, #0b3fa8 100%);
+      border-radius: 6px 6px 0 0;
+    }
+
+    #confirmacao-exportar > div::before { content: "💾 Exportar Excel"; }
+    #confirmacao-limpar > div::before { content: "🗑️ Limpar tudo"; }
+    #modal-codigo-incorreto > div::before { content: "⛔ Código incorreto"; }
+    #modal-codigo-duplicado > div::before { content: "⚠️ Código já bipado"; }
+
+    #confirmacao-exportar p,
+    #confirmacao-limpar p {
+      margin-top: 0;
+      font-size: 14px;
+    }
+
+    #confirmacao-exportar button,
+    #confirmacao-limpar button {
+      margin: 10px 5px 0 5px;
+      width: 90px;
+      padding: 8px;
+    }
+
+    /* Modal código incorreto */
+    #modal-codigo-incorreto {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,40,0.55);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-codigo-incorreto > div {
+      position: relative;
+      background: #ece9d8;
+      padding: 48px 22px 22px;
+      text-align: center;
+      max-width: 420px;
+      width: calc(100% - 40px);
+      border: 3px solid #0a3fc4;
+      border-radius: 9px 9px 4px 4px;
+      box-shadow: 4px 6px 18px rgba(0,0,0,.6);
+    }
+
+    #modal-codigo-incorreto h3 {
+      color: #c0392b;
+      margin-top: 0;
+    }
+
+    #modal-codigo-incorreto p {
+      font-size: 15px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    #fechar-codigo-incorreto {
+      margin-top: 10px;
+      width: 140px;
+      color: #fff;
+      text-shadow: 1px 1px 1px #0a2a80;
+      border: 1px solid #0a3fc4;
+      border-radius: 12px;
+      background: linear-gradient(#6aa3ff 0%, #2a6ee8 50%, #1352c8 100%);
+    }
+
+    /* Modal código duplicado */
+    #modal-codigo-duplicado {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,40,0.55);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-codigo-duplicado > div {
+      position: relative;
+      background: #ece9d8;
+      padding: 48px 22px 22px;
+      text-align: center;
+      max-width: 420px;
+      width: calc(100% - 40px);
+      border: 3px solid #0a3fc4;
+      border-radius: 9px 9px 4px 4px;
+      box-shadow: 4px 6px 18px rgba(0,0,0,.6);
+    }
+
+    #modal-codigo-duplicado h3 {
+      color: #c0392b;
+      margin-top: 0;
+    }
+
+    #modal-codigo-duplicado p {
+      font-size: 15px;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    #fechar-codigo-duplicado {
+      margin-top: 10px;
+      width: 140px;
+      color: #fff;
+      text-shadow: 1px 1px 1px #0a2a80;
+      border: 1px solid #0a3fc4;
+      border-radius: 12px;
+      background: linear-gradient(#6aa3ff 0%, #2a6ee8 50%, #1352c8 100%);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header-banner">
+    AUDITORIA DOS CORREIOS
+  </div>
+
+  <div id="top-info">
+    QTD Bipada:
+    <span id="contador">0</span>
+    |
+    Último código:
+    <span id="ultimo-codigo">-</span>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <form class="form-container" id="meuFormulario">
+
+    <div class="form-group">
+      <label for="base">AUDITOR</label>
+
+      <select id="base" required>
+        <option value="" disabled selected>Selecione o AUDITOR</option>
+
+<option>Jonathan M Rodrigues</option>
+
+
+        <option>OUTROS ESCREVER APOS BAIXAR A PLANILHA</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="setor">FLUXO</label>
+
+      <select id="setor" required>
+        <option value="" disabled selected>Selecione o FLUXO</option>
+
+        <option>CORREIOS SAIDA</option>
+        <option>CORREIOS DEVOLUÇAO</option>
+        <option>OUTROS</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="codigo">CODIGO</label>
+
+      <input
+        type="text"
+        id="codigo"
+        required
+        autocomplete="off"
+      />
+    </div>
+
+    <button type="submit" id="btn-enviar">
+      ENVIAR
+    </button>
+
+    <div id="mensagem-erro"></div>
+    <div id="mensagem-limite"></div>
+
+  </form>
+
+  <!-- BOTÕES -->
+  <div id="botoes-container">
+
+    <button id="botao-tabela">
+      Consultar Peças
+    </button>
+
+    <button id="botao-exportar">
+      Exportar Excel
+    </button>
+
+    <button id="botao-limpar">
+      Limpar tudo
+    </button>
+
+  </div>
+
+  <!-- MODAL DA TABELA -->
+  <div id="modal-tabela">
+
+    <div id="modal-botoes-topo">
+
+      <button id="botao-ocultar">
+        Voltar
+      </button>
+
+      <button id="botao-exportar-modal">
+        Exportar Excel
+      </button>
+
+    </div>
+
+    <table id="tabela">
+
+      <thead>
+        <tr>
+          <th>AUDITOR</th>
+          <th>FLUXO</th>
+          <th>CODIGO</th>
+          <th>Data/Hora</th>
+        </tr>
+      </thead>
+
+      <tbody></tbody>
+
+    </table>
+
+  </div>
+
+  <!-- RODAPÉ -->
+  <div id="rodape">
+    Restantes:
+    <span id="restantes">2500</span>
+  </div>
+
+  <!-- CONFIRMAÇÃO EXPORTAR -->
+  <div id="confirmacao-exportar">
+
+    <div>
+
+      <p>
+        Após exportar a auditoria será reiniciada.
+        Deseja continuar?
+      </p>
+
+      <button id="confirmar-sim-exportar">
+        Sim
+      </button>
+
+      <button id="confirmar-nao-exportar">
+        Não
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- CONFIRMAÇÃO LIMPAR -->
+  <div id="confirmacao-limpar">
+
+    <div>
+
+      <p>
+        Todos os dados serão apagados.
+        Deseja continuar?
+      </p>
+
+      <button id="confirmar-sim-limpar">
+        Sim
+      </button>
+
+      <button id="confirmar-nao-limpar">
+        Não
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL CÓDIGO INCORRETO -->
+  <div id="modal-codigo-incorreto">
+
+    <div>
+
+      <h3>CÓDIGO INCORRETO</h3>
+
+      <p id="texto-codigo-incorreto">
+        O código bipado não é permitido.
+      </p>
+
+      <button id="fechar-codigo-incorreto">
+        FECHAR
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL CÓDIGO DUPLICADO -->
+  <div id="modal-codigo-duplicado">
+
+    <div>
+
+      <h3>CÓDIGO JÁ BIPADO</h3>
+
+      <p id="texto-codigo-duplicado">
+        Este código já foi registrado na auditoria.
+      </p>
+
+      <button id="fechar-codigo-duplicado">
+        FECHAR
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    /* ELEMENTOS DA PÁGINA */
+
+    const form = document.getElementById("meuFormulario");
+
+    const tabelaBody =
+      document.querySelector("#tabela tbody");
+
+    const contador =
+      document.getElementById("contador");
+
+    const ultimoCodigo =
+      document.getElementById("ultimo-codigo");
+
+    const restantes =
+      document.getElementById("restantes");
+
+    const btnEnviar =
+      document.getElementById("btn-enviar");
+
+    const erroMsg =
+      document.getElementById("mensagem-erro");
+
+    const limiteMsg =
+      document.getElementById("mensagem-limite");
+
+    const modalTabela =
+      document.getElementById("modal-tabela");
+
+    const botaoTabela =
+      document.getElementById("botao-tabela");
+
+    const botaoOcultar =
+      document.getElementById("botao-ocultar");
+
+    const botaoExportar =
+      document.getElementById("botao-exportar");
+
+    const botaoExportarModal =
+      document.getElementById("botao-exportar-modal");
+
+    const botaoLimpar =
+      document.getElementById("botao-limpar");
+
+    const confirmacaoExportar =
+      document.getElementById("confirmacao-exportar");
+
+    const btnSimExportar =
+      document.getElementById("confirmar-sim-exportar");
+
+    const btnNaoExportar =
+      document.getElementById("confirmar-nao-exportar");
+
+    const confirmacaoLimpar =
+      document.getElementById("confirmacao-limpar");
+
+    const btnSimLimpar =
+      document.getElementById("confirmar-sim-limpar");
+
+    const btnNaoLimpar =
+      document.getElementById("confirmar-nao-limpar");
+
+    const modalCodigoIncorreto =
+      document.getElementById("modal-codigo-incorreto");
+
+    const textoCodigoIncorreto =
+      document.getElementById("texto-codigo-incorreto");
+
+    const fecharCodigoIncorreto =
+      document.getElementById("fechar-codigo-incorreto");
+
+    const modalCodigoDuplicado =
+      document.getElementById("modal-codigo-duplicado");
+
+    const textoCodigoDuplicado =
+      document.getElementById("texto-codigo-duplicado");
+
+    const fecharCodigoDuplicado =
+      document.getElementById("fechar-codigo-duplicado");
+
+    const selectBase =
+      document.getElementById("base");
+
+    const selectSetor =
+      document.getElementById("setor");
+
+
+    /* CONFIGURAÇÕES */
+
+    const LIMITE = 2500;
+
+    let dados = JSON.parse(
+      localStorage.getItem("dadosInventario") || "[]"
+    );
+
+
+    /* SALVAR DADOS */
+
+    function salvarDados() {
+
+      localStorage.setItem(
+        "dadosInventario",
+        JSON.stringify(dados)
+      );
+
+    }
+
+
+    /* SALVAR ÚLTIMOS CAMPOS */
+
+    function salvarUltimosSelects() {
+
+      localStorage.setItem(
+        "ultimoBase",
+        selectBase.value
+      );
+
+      localStorage.setItem(
+        "ultimoSetor",
+        selectSetor.value
+      );
+
+    }
+
+
+    /* LIMPAR ÚLTIMOS CAMPOS */
+
+    function limparUltimosSelects() {
+
+      localStorage.removeItem("ultimoBase");
+      localStorage.removeItem("ultimoSetor");
+
+    }
+
+
+    /* CARREGAR ÚLTIMOS CAMPOS */
+
+    function carregarUltimosSelects() {
+
+      const baseSalvo =
+        localStorage.getItem("ultimoBase");
+
+      const setorSalvo =
+        localStorage.getItem("ultimoSetor");
+
+
+      if (baseSalvo) {
+
+        selectBase.value = baseSalvo;
+
+      } else {
+
+        selectBase.value = "";
+
+      }
+
+
+      if (setorSalvo) {
+
+        selectSetor.value = setorSalvo;
+
+      } else {
+
+        selectSetor.value = "";
+
+      }
+
+    }
+
+
+    /* ATUALIZAR INTERFACE */
+
+    function atualizarUI() {
+
+      tabelaBody.innerHTML = "";
+
+
+      dados.forEach(d => {
+
+        const row =
+          tabelaBody.insertRow();
+
+        row.insertCell(0).textContent =
+          d.base;
+
+        row.insertCell(1).textContent =
+          d.setor;
+
+        row.insertCell(2).textContent =
+          d.codigo;
+
+        row.insertCell(3).textContent =
+          d.dataHora;
+
+      });
+
+
+      contador.textContent =
+        dados.length;
+
+      restantes.textContent =
+        LIMITE - dados.length;
+
+
+      if (dados.length >= LIMITE) {
+
+        btnEnviar.disabled = true;
+
+        limiteMsg.textContent =
+          "Limite atingido, para continuar, exporte os dados inseridos até agora.";
+
+      } else {
+
+        btnEnviar.disabled = false;
+
+        limiteMsg.textContent = "";
+
+      }
+
+    }
+
+
+    /* 
+       PROCESSAMENTO DOS CÓDIGOS
+
+       ACEITA:
+
+       AD + 9 números + BR
+
+       Exemplo:
+       AD987654321BR
+
+       TAMBÉM ACEITA O CÓDIGO LONGO
+       E EXTRAI SOMENTE AD...BR.
+    */
+
+    function processarCodigoBipado(codigoOriginal) {
+  const codigo = codigoOriginal.trim().toUpperCase();
+
+  // Procura AD...BR dentro de códigos longos
+  const encontradoAD = codigo.match(/AD\d+BR/);
+
+  // Se encontrou, salva somente o AD...BR
+  if (encontradoAD) {
+    return encontradoAD[0];
+  }
+
+  // Aceita códigos de 9 até 15 caracteres
+  if (codigo.length >= 9 && codigo.length <= 15) {
+    return codigo;
+  }
+
+  // Fora do limite = inválido
+  return null;
+}
+
+    /* MODAL CÓDIGO INCORRETO */
+
+    function mostrarCodigoIncorreto(codigo) {
+
+      textoCodigoIncorreto.textContent =
+        `Código não permitido: ${codigo}. Feche esta mensagem para continuar a auditoria.`;
+
+      modalCodigoIncorreto.style.display =
+        "flex";
+
+      setTimeout(() => {
+
+        fecharCodigoIncorreto.focus();
+
+      }, 0);
+
+    }
+
+
+    fecharCodigoIncorreto.onclick = () => {
+
+      modalCodigoIncorreto.style.display =
+        "none";
+
+      const campoCodigo =
+        document.getElementById("codigo");
+
+      campoCodigo.value = "";
+
+      campoCodigo.focus();
+
+    };
+
+
+    /* MODAL CÓDIGO DUPLICADO */
+
+    function mostrarCodigoDuplicado(codigo) {
+
+      textoCodigoDuplicado.textContent =
+        `O código ${codigo} já foi bipado anteriormente.`;
+
+      modalCodigoDuplicado.style.display =
+        "flex";
+
+      setTimeout(() => {
+
+        fecharCodigoDuplicado.focus();
+
+      }, 0);
+
+    }
+
+
+    fecharCodigoDuplicado.onclick = () => {
+
+      modalCodigoDuplicado.style.display =
+        "none";
+
+      const campoCodigo =
+        document.getElementById("codigo");
+
+      campoCodigo.value = "";
+
+      campoCodigo.focus();
+
+    };
+
+
+    /* ENVIO / BIPAGEM */
+
+    form.addEventListener("submit", e => {
+
+      e.preventDefault();
+
+      erroMsg.textContent = "";
+
+
+      const base =
+        selectBase.value;
+
+      const setor =
+        selectSetor.value;
+
+      const codigoBipado =
+        document
+          .getElementById("codigo")
+          .value
+          .trim()
+          .toUpperCase();
+
+
+      /* Verificar auditor e fluxo */
+
+      if (!base || !setor) {
+
+        erroMsg.textContent =
+          "Por favor, selecione o AUDITOR e o FLUXO.";
+
+        return;
+
+      }
+
+
+      /* Validar código */
+
+      const codigo =
+        processarCodigoBipado(codigoBipado);
+
+
+      if (!codigo) {
+
+        mostrarCodigoIncorreto(
+          codigoBipado
+        );
+
+        return;
+
+      }
+
+
+      /* Verificar duplicidade */
+
+      if (
+        dados.some(
+          d => d.codigo === codigo
+        )
+      ) {
+
+        mostrarCodigoDuplicado(
+          codigo
+        );
+
+        return;
+
+      }
+
+
+      /* Verificar limite */
+
+      if (dados.length >= LIMITE) {
+
+        erroMsg.textContent =
+          "Limite atingido, não é possível adicionar mais.";
+
+        return;
+
+      }
+
+
+      /* Data e hora */
+
+      const dataHora =
+        new Date().toLocaleString("pt-BR");
+
+
+      /* Adicionar registro */
+
+      dados.push({
+
+        base: base,
+
+        setor: setor,
+
+        codigo: codigo,
+
+        dataHora: dataHora
+
+      });
+
+
+      /* Salvar */
+
+      salvarDados();
+
+
+      /* Mostrar último código */
+
+      ultimoCodigo.textContent =
+        codigo;
+
+
+      /* Limpar campo */
+
+      document.getElementById(
+        "codigo"
+      ).value = "";
+
+
+      /* Salvar auditor e fluxo */
+
+      salvarUltimosSelects();
+
+
+      /* Atualizar tela */
+
+      atualizarUI();
+
+    });
+
+
+    /* ABRIR CONSULTA */
+
+    botaoTabela.onclick = () => {
+
+      modalTabela.style.display =
+        "flex";
+
+      form.classList.add("hidden");
+
+      botaoTabela.classList.add("hidden");
+
+      botaoExportar.classList.add("hidden");
+
+      botaoLimpar.classList.add("hidden");
+
+      document
+        .getElementById("top-info")
+        .classList.add("hidden");
+
+      document
+        .getElementById("rodape")
+        .classList.add("hidden");
+
+      erroMsg.textContent = "";
+
+      limiteMsg.textContent = "";
+
+    };
+
+
+    /* VOLTAR DA CONSULTA */
+
+    botaoOcultar.onclick = () => {
+
+      modalTabela.style.display =
+        "none";
+
+      form.classList.remove("hidden");
+
+      botaoTabela.classList.remove("hidden");
+
+      botaoExportar.classList.remove("hidden");
+
+      botaoLimpar.classList.remove("hidden");
+
+      document
+        .getElementById("top-info")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("rodape")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("codigo")
+        .focus();
+
+    };
+
+
+    /* EXPORTAR EXCEL */
+
+    function exportarExcel() {
+
+      /*
+        Como agora somente códigos AD
+        são aceitos, todos os registros
+        vão para uma única coluna.
+      */
+
+      const linhas = [
+
+        ["CODIGO REDESPACHO"],
+
+        ...dados.map(
+          d => [d.codigo]
+        )
+
+      ];
+
+
+      const worksheet =
+        XLSX.utils.aoa_to_sheet(
+          linhas
+        );
+
+
+      const workbook =
+        XLSX.utils.book_new();
+
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "INVENTARIO"
+      );
+
+
+      /* Data e hora */
+
+      const agora =
+        new Date();
+
+      const dia =
+        String(
+          agora.getDate()
+        ).padStart(2, "0");
+
+      const mes =
+        String(
+          agora.getMonth() + 1
+        ).padStart(2, "0");
+
+      const ano =
+        agora.getFullYear();
+
+      const hora =
+        String(
+          agora.getHours()
+        ).padStart(2, "0");
+
+      const minuto =
+        String(
+          agora.getMinutes()
+        ).padStart(2, "0");
+
+      const segundo =
+        String(
+          agora.getSeconds()
+        ).padStart(2, "0");
+
+
+      /* Formatar texto */
+
+      function formatarTexto(texto) {
+
+        return texto
+
+          .normalize("NFD")
+
+          .replace(
+            /[\u0300-\u036f]/g,
+            ""
+          )
+
+          .replace(
+            /[^a-zA-Z0-9]/g,
+            "-"
+          )
+
+          .replace(
+            /-+/g,
+            "-"
+          )
+
+          .replace(
+            /^-|-$/g,
+            ""
+          )
+
+          .toUpperCase();
+
+      }
+
+
+      /* Nome do auditor */
+
+      const baseNome =
+        formatarTexto(
+          selectBase.value ||
+          "SEM-BASE"
+        );
+
+
+      /* Nome do fluxo */
+
+      const setorNome =
+        formatarTexto(
+          selectSetor.value ||
+          "SEM-SETOR"
+        );
+
+
+      /* Nome final do arquivo */
+
+      const nomeArquivo =
+        `INVENTARIO-${baseNome}-${setorNome}-${dia}-${mes}-${ano}-${hora}h${minuto}m${segundo}s.xlsx`;
+
+
+      /* Baixar Excel */
+
+      XLSX.writeFile(
+        workbook,
+        nomeArquivo
+      );
+
+    }
+
+
+    /* BOTÃO EXPORTAR */
+
+    botaoExportar.onclick = () => {
+
+      confirmacaoExportar.style.display =
+        "flex";
+
+    };
+
+
+    /* EXPORTAR DENTRO DA CONSULTA */
+
+    botaoExportarModal.onclick = () => {
+
+      confirmacaoExportar.style.display =
+        "flex";
+
+    };
+
+
+    /* CONFIRMAR EXPORTAÇÃO */
+
+    btnSimExportar.onclick = () => {
+
+      exportarExcel();
+
+
+      /* Limpar dados */
+
+      dados = [];
+
+      salvarDados();
+
+
+      /* Limpar último código */
+
+      ultimoCodigo.textContent =
+        "-";
+
+
+      /* Limpar auditor e fluxo */
+
+      limparUltimosSelects();
+
+      carregarUltimosSelects();
+
+
+      /* Atualizar tela */
+
+      atualizarUI();
+
+
+      /* Fechar confirmação */
+
+      confirmacaoExportar.style.display =
+        "none";
+
+    };
+
+
+    /* CANCELAR EXPORTAÇÃO */
+
+    btnNaoExportar.onclick = () => {
+
+      confirmacaoExportar.style.display =
+        "none";
+
+    };
+
+
+    /* BOTÃO LIMPAR */
+
+    botaoLimpar.onclick = () => {
+
+      confirmacaoLimpar.style.display =
+        "flex";
+
+    };
+
+
+    /* CONFIRMAR LIMPEZA */
+
+    btnSimLimpar.onclick = () => {
+
+      dados = [];
+
+      salvarDados();
+
+
+      ultimoCodigo.textContent =
+        "-";
+
+
+      limparUltimosSelects();
+
+      carregarUltimosSelects();
+
+
+      atualizarUI();
+
+
+      confirmacaoLimpar.style.display =
+        "none";
+
+    };
+
+
+    /* CANCELAR LIMPEZA */
+
+    btnNaoLimpar.onclick = () => {
+
+      confirmacaoLimpar.style.display =
+        "none";
+
+    };
+
+
+    /* INICIALIZAÇÃO */
+
+    carregarUltimosSelects();
+
+    atualizarUI();
+
+  </script>
+
+</body>
+</html>
